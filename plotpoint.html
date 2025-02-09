@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plot Point Map Interval Calculator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        html, body, #map {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #downloadGeoJSON {
+            visibility: hidden;
+        }
+        #distance {
+            visibility: hidden;
+        }
+        #toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            z-index: 1000;
+            display: flex;
+            justify-content: left;
+            gap: 10px;
+        }
+        #toolbar button, #toolbar label, #toolbar input, #toolbar div {
+            padding: 5px 10px;
+        }
+
+        #introModal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        #interval {
+            width:70px;
+        }
+
+        #startWorkflow {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z' fill='currentColor'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            padding: 5px 15px;
+        }
+
+        #startWorkflow.stop {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6h12v12H6z' fill='currentColor'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="toolbar">
+        <a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2025 Shawn Morgan | 
+        <label for="interval">Enter Plot Interval (m):</label>
+        <input type="number" id="interval" value="100">
+        | Go: <button id="startWorkflow"></button>
+        <div id="distance">Distance: 0 meters</div>
+        <button id="downloadGeoJSON">Download GeoJSON</button>
+    </div>
+
+    <div id="introModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Plot Point Map Interval Calculator</h2>
+            <p>This tool allows you to create a line on the map and generate points along that line at a specified interval. Here's how to use it:</p>
+            <ol>
+                <li>Pan and Zoom the map so you can see the area of interest.</li>
+                <li>Enter the interval for your survey locations (every X meters within 1%).</li>
+                <li>Click the "Play" button to start the workflow.</li>
+                <li>Click on the map to place the first point of your line.</li>
+                <li>Move your mouse to see the distance, and click again to place the end of the line.</li>
+                <li>Points will be created at the interval specified along the line.</li>
+                <li>Click "Download GeoJSON" to save the generated points as a GeoJSON file.</li>
+                <li>Click the "Stop" button to end the workflow and reset.</li>
+            </ol>
+            <p>You can adjust the interval between points using the input box. The distance between the two points will be shown in the readout.</p>
+            <p><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" style="float:right;" height="25"></p>
+            <label><input type="checkbox" id="dontShowAgain"> Don't show this again</label>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+const map = L.map('map').setView([44.023605, -78.5698913], 13);
+const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+let workflowActive = false;
+let points = [];
+let polyline;
+let distanceDisplay = document.getElementById('distance');
+let markers = L.layerGroup().addTo(map);
+
+const startWorkflowButton = document.getElementById('startWorkflow');
+const downloadButton = document.getElementById('downloadGeoJSON');
+const intervalInput = document.getElementById('interval');
+
+const introModal = document.getElementById('introModal');
+const modalClose = document.querySelector('.close');
+const dontShowAgain = document.getElementById('dontShowAgain');
+
+const modalShown = document.cookie.includes('modalShown=true');
+
+if (!modalShown) {
+    introModal.style.display = 'block';
+}
+
+modalClose.onclick = function() {
+    introModal.style.display = 'none';
+    if (dontShowAgain.checked) { // Check if the checkbox is checked
+        document.cookie = 'modalShown=true; expires=Fri, 31 Dec 9999 23:59:59 UTC; path=/';
+    }
+}
+
+window.onclick = function(event) {
+    if (event.target == introModal) {
+        introModal.style.display = 'none';
+        if (dontShowAgain.checked) { // Check if the checkbox is checked
+            document.cookie = 'modalShown=true; expires=Fri, 31 Dec 9999 23:59:59 UTC; path=/';
+        }
+    }
+}
+
+startWorkflowButton.addEventListener('click', () => {
+    workflowActive = !workflowActive; // Toggle workflowActive
+    startWorkflowButton.classList.toggle('stop');
+    startWorkflowButton.title = workflowActive ? "Stop Workflow" : "Start Workflow";
+    points = [];
+    distanceDisplay.textContent = "Distance: 0 meters";
+    if (polyline) {
+        map.removeLayer(polyline);
+    }
+    markers.clearLayers();
+    if (workflowActive) {
+        distanceDisplay.style.visibility = "visible";
+        intervalInput.readOnly = true;
+        intervalInput.setAttribute('title', 'Read only while running');
+        startWorkflowButton.setAttribute('title', 'Ends and deletes points from map');
+    } else {
+        distanceDisplay.style.visibility = "hidden";        
+        downloadButton.style.visibility = "hidden";
+        intervalInput.setAttribute('title', 'Enter point interval');
+        intervalInput.readOnly = false;
+    }
+});
+
+map.on('click', function(e) {
+    if (workflowActive && points.length < 2) {
+        points.push(e.latlng);
+        L.marker(e.latlng).addTo(markers);
+
+        if (points.length === 1) {
+            map.on('mousemove', updateDistance);
+        } else if (points.length === 2) {
+            map.off('mousemove', updateDistance);
+            polyline = L.polyline(points).addTo(map);
+            generatePointsAlongLine();
+        }
+    }
+});
+
+function updateDistance(e) {
+    if (points.length === 1) {
+        const dist = points[0].distanceTo(e.latlng);
+        distanceDisplay.textContent = "Distance: " + dist.toFixed(2) + " meters";
+    }
+}
+
+function generatePointsAlongLine() {
+    const interval = parseFloat(intervalInput.value);
+    const startPoint = points[0];
+    const endPoint = points[1];
+
+    const geoJsonPoints = [];
+    let currentPoint = startPoint;
+    let distanceCovered = 0;
+    let plotID = 1;
+
+    markers.clearLayers();
+
+    // Add the START POINT as the first point
+    L.marker(startPoint).addTo(markers); // Add marker for start point
+    geoJsonPoints.push({
+        type: "Feature",
+        geometry: {
+            type: "Point",
+            coordinates: [startPoint.lng, startPoint.lat]
+        },
+        properties: {
+            PlotID: plotID++
+        }
+    });
+
+
+    while (distanceCovered + interval <= startPoint.distanceTo(endPoint)) {
+        distanceCovered += interval;
+        const fraction = distanceCovered / startPoint.distanceTo(endPoint);
+
+        const lat = startPoint.lat + (endPoint.lat - startPoint.lat) * fraction;
+        const lng = startPoint.lng + (endPoint.lng - startPoint.lng) * fraction;
+        const newPoint = L.latLng(lat, lng);
+
+        L.marker(newPoint).addTo(markers);
+
+        geoJsonPoints.push({
+            type: "Feature",
+            geometry: {
+                type: "Point",
+                coordinates: [lng, lat]
+            },
+            properties: {
+                PlotID: plotID++
+            }
+        });
+        currentPoint = newPoint;
+    }
+
+    polyline = L.polyline([startPoint, endPoint]).addTo(map);
+    downloadButton.style.visibility = "visible";
+    downloadButton.addEventListener('click', function() {
+        const geoJson = {
+            type: "FeatureCollection",
+            features: geoJsonPoints
+        };
+
+        const geoJsonString = JSON.stringify(geoJson);
+        const blob = new Blob([geoJsonString], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "points.geojson";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+}
+
+</script>
+</body>
+</html>
