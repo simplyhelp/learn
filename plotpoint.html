@@ -25,8 +25,16 @@
             z-index: 1000;
             display: flex;
             justify-content: left;
+            align-items: center; /* Center vertically */
             gap: 10px;
         }
+        
+        #simplyhelp {
+            color: #cccccc;
+            display: flex;
+            align-items: center;
+        }
+        
         #toolbar button, #toolbar label, #toolbar input, #toolbar div {
             padding: 5px 10px;
         }
@@ -75,6 +83,9 @@
             background-repeat: no-repeat;
             background-position: center;
             padding: 5px 15px;
+            min-width: 30px;
+            min-height: 30px;
+
         }
 
         #startWorkflow.stop {
@@ -85,12 +96,13 @@
 <body>
     <div id="map"></div>
     <div id="toolbar">
-        <a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2025 Shawn Morgan | 
+        <span id="simplyhelp"><a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2025</span> |
         <label for="interval">Enter Plot Interval (m):</label>
         <input type="number" id="interval" value="100">
-        | Go: <button id="startWorkflow"></button>
+        | <button id="startWorkflow" title="Start Workflow"></button>
         <div id="distance">Distance: 0 meters</div>
         <button id="downloadGeoJSON">Download GeoJSON</button>
+        <div id="helper">To start, enter interval and click play button</div>
     </div>
 
     <div id="introModal">
@@ -100,13 +112,13 @@
             <p>This tool allows you to create a line on the map and generate points along that line at a specified interval. Here's how to use it:</p>
             <ol>
                 <li>Pan and Zoom the map so you can see the area of interest.</li>
-                <li>Enter the interval for your survey locations (every X meters within 1%).</li>
+                <li>Provide the interval for your survey locations (every X meters within 1%).</li>
                 <li>Click the "Play" button to start the workflow.</li>
-                <li>Click on the map to place the first point of your line.</li>
-                <li>Move your mouse to see the distance, and click again to place the end of the line.</li>
+                <li>Click on the map to place line start.</li>
+                <li>Move your mouse to see the distance, and click again to add line end.</li>
                 <li>Points will be created at the interval specified along the line.</li>
                 <li>Click "Download GeoJSON" to save the generated points as a GeoJSON file.</li>
-                <li>Click the "Stop" button to end the workflow and reset.</li>
+                <li>Click the "Stop" button to end and reset.</li>
             </ol>
             <p>You can adjust the interval between points using the input box. The distance between the two points will be shown in the readout.</p>
             <p><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" style="float:right;" height="25"></p>
@@ -130,6 +142,7 @@ let markers = L.layerGroup().addTo(map);
 const startWorkflowButton = document.getElementById('startWorkflow');
 const downloadButton = document.getElementById('downloadGeoJSON');
 const intervalInput = document.getElementById('interval');
+const helperText = document.getElementById('helper');
 
 const introModal = document.getElementById('introModal');
 const modalClose = document.querySelector('.close');
@@ -160,6 +173,7 @@ window.onclick = function(event) {
 startWorkflowButton.addEventListener('click', () => {
     workflowActive = !workflowActive; // Toggle workflowActive
     startWorkflowButton.classList.toggle('stop');
+    startWorkflowButton.setAttribute('title', 'Stop Workflow');
     startWorkflowButton.title = workflowActive ? "Stop Workflow" : "Start Workflow";
     points = [];
     distanceDisplay.textContent = "Distance: 0 meters";
@@ -169,11 +183,12 @@ startWorkflowButton.addEventListener('click', () => {
     markers.clearLayers();
     if (workflowActive) {
         distanceDisplay.style.visibility = "visible";
+        helperText.innerHTML = "Step 1: Click map for line start.";
         intervalInput.readOnly = true;
         intervalInput.setAttribute('title', 'Read only while running');
-        startWorkflowButton.setAttribute('title', 'Ends and deletes points from map');
     } else {
         distanceDisplay.style.visibility = "hidden";        
+        helperText.innerHTML = "Reset. Click play to start.";
         downloadButton.style.visibility = "hidden";
         intervalInput.setAttribute('title', 'Enter point interval');
         intervalInput.readOnly = false;
@@ -183,6 +198,7 @@ startWorkflowButton.addEventListener('click', () => {
 map.on('click', function(e) {
     if (workflowActive && points.length < 2) {
         points.push(e.latlng);
+        helperText.innerHTML = "Step 2: Click on END point.";
         L.marker(e.latlng).addTo(markers);
 
         if (points.length === 1) {
@@ -253,6 +269,8 @@ function generatePointsAlongLine() {
 
     polyline = L.polyline([startPoint, endPoint]).addTo(map);
     downloadButton.style.visibility = "visible";
+    helperText.innerHTML = "Step 3: Click Download to keep points.";
+
     downloadButton.addEventListener('click', function() {
         const geoJson = {
             type: "FeatureCollection",
