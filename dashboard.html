@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Example Map and Chart Dashboard</title>
+<!--Example (C) 2024 Shawn Morgan-->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+	body {padding: 0;margin: 0;}
+	#myMapId { height: 50vh; }
+	#chartContainer { width: 100vw; height: 50vh; }
+</style>
+
+</head>
+<body>
+
+<div id="myMapId"></div>
+<div id="chartContainer">
+    <canvas id="myChart"></canvas>
+</div>
+
+<script>
+    var map = L.map('myMapId').setView([44.342, -78.741], 8); 
+
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: '(C) OpenStreetMap contributors, NTP'
+	}).addTo(map);
+
+	var geojsonLayer;
+
+	fetch('../datasets/ntp2023summary.geojson')
+		.then(response => response.json())
+		.then(data => {
+			geojsonLayer = L.geoJSON(data, {
+				onEachFeature: function(feature, layer) {
+					layer.bindPopup('<h4>' + feature.properties.month + ':' + feature.properties.event_type + '</h4><p>' + feature.properties.event_description +'</p>' ); // Adjust based on your GeoJSON structure
+				}
+			}).addTo(map);
+
+			updateChart(); // Initial chart update
+		});
+
+var myChart;
+var chartCtx = document.getElementById('myChart').getContext('2d');
+
+function updateChart() {
+    var visibleFeatures = [];
+    geojsonLayer.eachLayer(function(layer) {
+        if (map.getBounds().contains(layer.getLatLng())) {
+            visibleFeatures.push(layer.feature);
+        }
+    });
+
+    // Process visible features to get month counts
+    var monthCounts = visibleFeatures.reduce(function(acc, feature) {
+        var month = feature.properties.month; // Adjust based on your GeoJSON structure
+        acc[month] = (acc[month] || 0) + 1;
+        return acc;
+    }, {});
+
+    var chartLabels = Object.keys(monthCounts);
+    var chartData = Object.values(monthCounts);
+
+    // If chart exists, update data; else, create chart
+    if (myChart) {
+        myChart.data.labels = chartLabels;
+        myChart.data.datasets[0].data = chartData;
+        myChart.update();
+    } else {
+        myChart = new Chart(chartCtx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Number of Records',
+                    data: chartData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+				maintainAspectRatio: false
+            }
+        });
+    }
+}
+map.on('moveend', function() {
+    updateChart();
+});	
+	
+</script>
+
+</body>
+</html>
