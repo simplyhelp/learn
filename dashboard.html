@@ -33,7 +33,7 @@
 
 	var geojsonLayer;
 
-	fetch('../datasets/ntp2023summary.geojson')
+	fetch('data/ntp2023summary.geojson')
 		.then(response => response.json())
 		.then(data => {
 			geojsonLayer = L.geoJSON(data, {
