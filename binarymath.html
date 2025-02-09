@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Addition Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .numbers { margin: 20px; }
+        .output { margin-top: 20px; font-size: 1.2em; }
+        .description { margin: 20px; font-size: 1em; max-width: 600px; margin-left: auto; margin-right: auto; text-align: left; }
+        .binary-diagram { display: flex; justify-content: center; margin-top: 20px; font-size: 1.2em; }
+        .bit { width: 40px; height: 40px; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Binary Addition and Decomposition</h1>
+    <div class="description">
+        <p>Binary numbers are the foundation of computing. Each number in binary represents a power of two. By selecting different values, you can see how they add up and how the total can be broken down into its binary components.</p>
+        <p>Each checkbox represents a power of two: 1, 2, 4, 8, 16, 32, 64, and 128. When you check a box, the corresponding number is added to the sum. The total sum is displayed in both decimal and binary format. Additionally, the program shows how the sum can be decomposed back into the original numbers that were used to create it.</p>
+    </div>
+    <div style="background-color:#c3c3c3;">
+        <h2>Try it: Click one or more checkboxes:</h2>
+        <div class="numbers">
+            <label><input type="checkbox" value="1" onclick="calculateSum()"> 1</label>
+            <label><input type="checkbox" value="2" onclick="calculateSum()"> 2</label>
+            <label><input type="checkbox" value="4" onclick="calculateSum()"> 4</label>
+            <label><input type="checkbox" value="8" onclick="calculateSum()"> 8</label>
+            <label><input type="checkbox" value="16" onclick="calculateSum()"> 16</label>
+            <label><input type="checkbox" value="32" onclick="calculateSum()"> 32</label>
+            <label><input type="checkbox" value="64" onclick="calculateSum()"> 64</label>
+            <label><input type="checkbox" value="128" onclick="calculateSum()"> 128</label>
+        </div>
+        <div class="output" id="result"></div>
+        <div class="binary-diagram" id="binaryDiagram"></div>
+    </div>
+    <div class="description">
+        <h2>How Decomposition Works</h2>
+        <p>When a number is added, it is represented in binary format. Each bit position corresponds to a power of two. To extract the original numbers from the sum:</p>
+        <ul>
+            <li>Start with the total sum in decimal.</li>
+            <li>Convert the sum to its binary equivalent.</li>
+            <li>Compare each bit in the binary representation with known powers of two (128, 64, 32, etc.).</li>
+            <li>If a bit is set to 1, include the corresponding power of two in the decomposition.</li>
+            <li>Subtract that power of two from the total and continue until all bits are processed.</li>
+        </ul>
+        <p>This method ensures that the sum can always be broken down into its original components using powers of two.</p>
+        <p>&copy; 2025 Shawn Morgan.</p>
+    </div>
+    <script>
+        function calculateSum() {
+            let checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+            let sum = Array.from(checkboxes).reduce((acc, cb) => acc + Number(cb.value), 0);
+            let binary = sum.toString(2).padStart(8, '0');
+            let decomposition = [];
+            
+            let values = [128, 64, 32, 16, 8, 4, 2, 1];
+            let tempSum = sum;
+            for (let val of values) {
+                if (tempSum >= val) {
+                    decomposition.push(val);
+                    tempSum -= val;
+                }
+            }
+            
+            document.getElementById('result').innerHTML = 
+                `Sum: ${sum} (Binary: ${binary})<br>Decomposed: ${decomposition.join(' + ')}`;
+            
+            let diagram = document.getElementById('binaryDiagram');
+            diagram.innerHTML = '';
+            
+            for (let i = 0; i < binary.length; i++) {
+                let bit = document.createElement('div');
+                bit.className = 'bit';
+                bit.textContent = binary[i];
+                diagram.appendChild(bit);
+            }
+        }
+        calculateSum();
+    </script>
+</body>
+</html>
