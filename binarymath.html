@@ -11,6 +11,25 @@
         .description { margin: 20px; font-size: 1em; max-width: 600px; margin-left: auto; margin-right: auto; text-align: left; }
         .binary-diagram { display: flex; justify-content: center; margin-top: 20px; font-size: 1.2em; }
         .bit { width: 40px; height: 40px; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        #toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            z-index: 1000;
+            display: flex;
+            justify-content: left;
+            align-items: center; /* Center vertically */
+            gap: 10px;
+        }
+        
+        #simplyhelp {
+            color: #cccccc;
+            display: flex;
+            align-items: center;
+        }        
     </style>
 </head>
 <body>
@@ -45,8 +64,13 @@
             <li>Subtract that power of two from the total and continue until all bits are processed.</li>
         </ul>
         <p>This method ensures that the sum can always be broken down into its original components using powers of two.</p>
-        <p>&copy; 2025 Shawn Morgan.</p>
     </div>
+    <div id="toolbar">
+        <span id="simplyhelp"><a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2025</span>
+        <div>Binary Math Learning Tool</div>
+    </div>
+
+    
     <script>
         function calculateSum() {
             let checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
