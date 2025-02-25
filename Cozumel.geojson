@@ -1,0 +1,50 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "title": "Punta Sur Eco Beach Park" },
+      "geometry": { "type": "Point", "coordinates": [-86.9727, 20.5512] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "Faro Celarain (El Faro) Lighthouse" },
+      "geometry": { "type": "Point", "coordinates": [-86.9695, 20.5509] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "San Gervasio Ruins" },
+      "geometry": { "type": "Point", "coordinates": [-87.0209, 20.4791] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "Cozumel Jungle Tours" },
+      "geometry": { "type": "Point", "coordinates": [-87.0209, 20.4791] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "Blvd. Rafael E. Melgar Scenic Drive" },
+      "geometry": { "type": "Point", "coordinates": [-86.9446, 20.5115] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "El Cedral (Traditional Mayan Village)" },
+      "geometry": { "type": "Point", "coordinates": [-87.0913, 20.3847] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "Road to El Caracol (The Snail)" },
+      "geometry": { "type": "Point", "coordinates": [-87.0633, 20.5291] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "Cozumel Island Beaches & Off-Road Adventures" },
+      "geometry": { "type": "Point", "coordinates": [-87.0005, 20.4720] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "title": "El Caracol Ecological Reserve" },
+      "geometry": { "type": "Point", "coordinates": [-87.1043, 20.3956] }
+    }
+  ]
+}
