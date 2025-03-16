@@ -89,9 +89,9 @@ and the **ON83CSv1.gsb (Ontario NAD83 (Original) to NAD83-CSRS(1997))** file.
 ### **Option 1: Install for All Users**
 1. Copy the downloaded **`.gsb`** files to:  
    ```
-   C:\Program Files\ArcGIS\Pro\Resources\pedata\ntv2\world
+   C:\Program Files\ArcGIS\Pro\Resources\pedata\ntv2\canada
    ```
-   (You may need administrator rights to paste files here.)
+   (You may need administrator rights to create the folder and paste files here.)
 
 ### **Option 2: Install for a Single User**
 If you don’t have admin rights, copy the files to:
