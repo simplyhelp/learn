@@ -3,10 +3,13 @@
 
 **NAD83 (CSRS)** stands for **North American Datum 1983 (Canadian Spatial Reference System)**. It is an **updated version** of NAD83 that incorporates **improved accuracy using GPS measurements**.  
 
+**IMPORTANT:** Most do not need to be concerned with the level of precision discussed here. But if data aren't lining up and CSRS is being used, this might help. 
+
 ---
 
 ## **Why Was CSRS Introduced?**  
-The original **NAD83 (1983)** was based on ground survey data and early satellite measurements. Over time, more accurate **GPS technology** revealed small errors in this datum.  
+The original **NAD83 (1983)** was based on ground survey data and early satellite measurements. Over time, more accurate **GPS technology** revealed small errors in this datum. While the GPS datum is updated regularly, 
+there are still regional differences and when using high-precision GNSS receivers this comes into play. Mostly, the CSRS deals with local events moving the earth like melting of the permafrost, earthquakes and plate tetonics.
 
 To improve positional accuracy across Canada, **Natural Resources Canada (NRCan)** introduced **NAD83 (CSRS)**, refining coordinate positions with GPS data.  
 
@@ -70,10 +73,10 @@ Imagine you have an old and new road map:
 ---
 
 ## **How to Use `.gsb` Files in ArcGIS Pro**  
-1. **Download the `.gsb` file** from a trusted source (e.g., [Ontario GeoHub](https://geohub.lio.gov.on.ca)).  
+1. **Download the `.gsb` file** from a trusted source (e.g., [Ontario GeoHub](https://geohub.lio.gov.on.ca), direct link below). Each province updates their own files so you must grab it directly from the province covering the area working data in. There are some national files for NAD27 to NAD83 CSRS transformation. The most common needed datum transformation is for GPS to CSRS, which is NAD83 to NAD83 CSRS. 
 2. With ArcGIS Pro not running, **Place the file(s) in the correct folder:**  
    - `C:\Program Files\ArcGIS\Pro\Resources\pedata\ntv2\canada` (for all users). If the canada directory does not exist, create it.   
-3. **Choose the correct transformation** in ArcGIS Pro (e.g., `NAD_1927_To_NAD_1983_CSRS_NTv2`).  
+3. **Choose the correct transformation** in ArcGIS Pro (e.g., `ON83CSv1.gsb`).  There is no harm in adding multiple, but to keep it simple ideally only add what you actually need. 
 
 
 # Installing NTv2 files for CSRS datum transformations
@@ -137,3 +140,6 @@ Exporting a layer with an NTv2 grid-defined PRJ file will not automatically appl
 - A .prj file contains the coordinate system definition (horizontal & vertical reference), but not the transformation details.
 - NTv2 grid shifts are part of datum transformations, which are handled separately in ArcGIS Pro.
 - NTv2 grids are government-owned datasets and have licensing or distribution restrictions.
+
+**Uncorrected GPS data**
+- Using standard/uncorrected GPS has an accuracy of only ~3m, which is less accurate than the correction here. Therefore most users do not need to worry about the level of precision converting to and from the standard GPS International Terrestrial Reference Frame (ITRF) used by GPS is ITRF2020, with WGS84(G2296) being the aligned version used in GPS since January 2024. 
