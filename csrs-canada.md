@@ -71,8 +71,8 @@ Imagine you have an old and new road map:
 
 ## **How to Use `.gsb` Files in ArcGIS Pro**  
 1. **Download the `.gsb` file** from a trusted source (e.g., [Ontario GeoHub](https://geohub.lio.gov.on.ca)).  
-2. **Place it in the correct folder:**  
-   - `C:\Program Files\ArcGIS\Pro\Resources\pedata\ntv2\world` (for all users).  
+2. With ArcGIS Pro not running, **Place the file(s) in the correct folder:**  
+   - `C:\Program Files\ArcGIS\Pro\Resources\pedata\ntv2\canada` (for all users). If the canada directory does not exist, create it.   
 3. **Choose the correct transformation** in ArcGIS Pro (e.g., `NAD_1927_To_NAD_1983_CSRS_NTv2`).  
 
 
