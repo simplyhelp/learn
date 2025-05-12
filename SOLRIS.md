@@ -5,8 +5,8 @@ standardized, landscape level inventory of natural, rural and urban lands in Eco
 2000-2015 in Ecoregions 7E, 6E and 5E (Growth Plan for the Greater Golden Horseshoe Study Area and an Eastern Ontario extension to the Forest Resources 
 Inventory boundary).
 
-SOLRIS LIO Metadata Link [https://geohub.lio.gov.on.ca/documents/0279f65b82314121b5b5ec93d76bc6ba](https://geohub.lio.gov.on.ca/documents/0279f65b82314121b5b5ec93d76bc6ba)
-SOLRIS Download Link [https://www.arcgis.com/home/item.html?id=0279f65b82314121b5b5ec93d76bc6ba](https://www.arcgis.com/home/item.html?id=0279f65b82314121b5b5ec93d76bc6ba)
+- SOLRIS LIO Metadata Link [https://geohub.lio.gov.on.ca/documents/0279f65b82314121b5b5ec93d76bc6ba](https://geohub.lio.gov.on.ca/documents/0279f65b82314121b5b5ec93d76bc6ba)
+- SOLRIS Download Link [https://www.arcgis.com/home/item.html?id=0279f65b82314121b5b5ec93d76bc6ba](https://www.arcgis.com/home/item.html?id=0279f65b82314121b5b5ec93d76bc6ba)
 
 The downloaded ZIP file contains the following:
 
