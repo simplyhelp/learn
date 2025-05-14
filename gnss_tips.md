@@ -59,7 +59,7 @@
 
 ---
 
-### ⚠️ 7. Minimize Interference
+### 7. Minimize Interference
 
 * Keep the device **away from large metal objects, electronics, radios, and terrain or large rocks**.
 * Metal and glass surfaces can reflect signals (multipath error)
