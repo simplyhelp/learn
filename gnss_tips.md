@@ -1,15 +1,15 @@
 
-## Best Practices for Accurate GNSS Data Collection with Consumer Devices
+# Best Practices for Accurate GNSS Data Collection with Consumer Devices
 
 **Applies to:** Smartphones, tablets, handheld GPS units, drones (non-corrected GNSS)
 
 ---
 
-# Key practices for Maximizing Location Precision and Accuracy
+## Key practices for Maximizing Location Precision and Accuracy
 
 ---
 
-## 1. Get a Clear View of the Sky
+### 1. Get a Clear View of the Sky
 
 * Use in **open areas**, away from buildings and tall trees.
 * Avoid dense canopy, walls, vehicles, or anything blocking the sky.
@@ -18,7 +18,7 @@
 
 ---
 
-## 2. Soak the Signal Before Recording
+### 2. Soak the Signal Before Recording
 
 * **Wait 2–5 minutes** at a new location before collecting data.
 * Moving <1km is fine to collect, it's moving significantly away that requires soaking. 
@@ -79,6 +79,7 @@ For more info or to get an HDOP planning app, try:
 * **GNSS View** (iOS)
 * **Trimble GNSS Planning Online**
 
+# Summary Chart
 
 | Factor                 | Recommendation                               | Benefit                                         |
 | ---------------------- | -------------------------------------------- | ----------------------------------------------- |
