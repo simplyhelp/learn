@@ -100,7 +100,7 @@
 <body>
     <div id="map"></div>
     <div id="toolbar">
-        <span id="simplyhelp"><a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2025</span> |
+        <span id="simplyhelp"><a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2026</span> |
         <label for="basemapSelector">Basemap:</label>
         <select id="basemapSelector">
             <option value="osm">OpenStreetMap</option>
@@ -199,6 +199,7 @@ basemapSelector.addEventListener('change', function() {
 let workflowActive = false;
 let points = [];
 let polyline;
+let tempPolyline; // Temporary line that follows the mouse
 let distanceDisplay = document.getElementById('distance');
 let markers = L.layerGroup().addTo(map);
 
@@ -243,6 +244,10 @@ startWorkflowButton.addEventListener('click', () => {
     if (polyline) {
         map.removeLayer(polyline);
     }
+    if (tempPolyline) {
+        map.removeLayer(tempPolyline);
+        tempPolyline = null;
+    }
     markers.clearLayers();
     if (workflowActive) {
         distanceDisplay.style.visibility = "visible";
@@ -265,9 +270,20 @@ map.on('click', function(e) {
         L.marker(e.latlng).addTo(markers);
 
         if (points.length === 1) {
+            // Create temporary polyline after first click
+            tempPolyline = L.polyline([e.latlng, e.latlng], {
+                color: 'blue',
+                dashArray: '5, 10',
+                weight: 2
+            }).addTo(map);
             map.on('mousemove', updateDistance);
         } else if (points.length === 2) {
             map.off('mousemove', updateDistance);
+            // Remove temporary polyline
+            if (tempPolyline) {
+                map.removeLayer(tempPolyline);
+                tempPolyline = null;
+            }
             polyline = L.polyline(points).addTo(map);
             generatePointsAlongLine();
         }
@@ -278,6 +294,11 @@ function updateDistance(e) {
     if (points.length === 1) {
         const dist = points[0].distanceTo(e.latlng);
         distanceDisplay.textContent = "Distance: " + dist.toFixed(2) + " meters";
+        
+        // Update temporary polyline to follow mouse
+        if (tempPolyline) {
+            tempPolyline.setLatLngs([points[0], e.latlng]);
+        }
     }
 }
 
@@ -294,7 +315,12 @@ function generatePointsAlongLine() {
     markers.clearLayers();
 
     // Add the START POINT as the first point
-    L.marker(startPoint).addTo(markers); // Add marker for start point
+    const startMarker = L.marker(startPoint).addTo(markers);
+    startMarker.bindPopup(`<b>Plot ID: ${plotID}</b><br>Latitude: ${startPoint.lat.toFixed(6)}<br>Longitude: ${startPoint.lng.toFixed(6)}`);
+    startMarker.on('click', function() {
+        this.openPopup();
+    });
+    
     geoJsonPoints.push({
         type: "Feature",
         geometry: {
@@ -315,7 +341,11 @@ function generatePointsAlongLine() {
         const lng = startPoint.lng + (endPoint.lng - startPoint.lng) * fraction;
         const newPoint = L.latLng(lat, lng);
 
-        L.marker(newPoint).addTo(markers);
+        const marker = L.marker(newPoint).addTo(markers);
+        marker.bindPopup(`<b>Plot ID: ${plotID}</b><br>Latitude: ${lat.toFixed(6)}<br>Longitude: ${lng.toFixed(6)}`);
+        marker.on('click', function() {
+            this.openPopup();
+        });
 
         geoJsonPoints.push({
             type: "Feature",
