@@ -35,7 +35,7 @@
             align-items: center;
         }
         
-        #toolbar button, #toolbar label, #toolbar input, #toolbar div {
+        #toolbar button, #toolbar label, #toolbar input, #toolbar select, #toolbar div {
             padding: 5px 10px;
         }
 
@@ -91,12 +91,23 @@
         #startWorkflow.stop {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6h12v12H6z' fill='currentColor'/%3E%3C/svg%3E");
         }
+
+        #basemapSelector {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <div id="toolbar">
         <span id="simplyhelp"><a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2025</span> |
+        <label for="basemapSelector">Basemap:</label>
+        <select id="basemapSelector">
+            <option value="osm">OpenStreetMap</option>
+            <option value="aerial">Aerial Imagery</option>
+            <option value="ontario">Ontario Vector Topo</option>
+        </select>
+        |
         <label for="interval">Enter Plot Interval (m):</label>
         <input type="number" id="interval" value="100">
         | <button id="startWorkflow" title="Start Workflow"></button>
@@ -127,6 +138,8 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet-vector@4.2.5/dist/esri-leaflet-vector.js"></script>
     <script>
 // Function to get URL parameters
 function getURLParameter(name) {
@@ -159,9 +172,29 @@ const [latitude, longitude] = parseLocation(locParam, defaultLat, defaultLng);
 
 // Initialize map with the location
 const map = L.map('map').setView([latitude, longitude], 13);
-const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+
+// Define basemap layers
+const basemaps = {
+    osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }),
+    aerial: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    }),
+    ontario: L.esri.Vector.vectorTileLayer('https://tiles.arcgis.com/tiles/TJH5KDher0W13Kgo/arcgis/rest/services/Ontario_Vector_Topographic_Data_Cache_Service/VectorTileServer', {
+        attribution: '&copy; Esri | Ontario Vector Topographic Data'
+    })
+};
+
+// Add default basemap
+let currentBasemap = basemaps.osm.addTo(map);
+
+// Basemap selector
+const basemapSelector = document.getElementById('basemapSelector');
+basemapSelector.addEventListener('change', function() {
+    map.removeLayer(currentBasemap);
+    currentBasemap = basemaps[this.value].addTo(map);
+});
 
 let workflowActive = false;
 let points = [];
