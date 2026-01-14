@@ -265,8 +265,8 @@
             <p>You can adjust the interval between points using the input box. The distance between the two points will be shown in the readout.</p>
             <h3>Additional Features:</h3>
             <ul>
-                <li><strong>Basemap Selector:</strong> Click the 🗺️ button (top-left) to switch between OpenStreetMap, Aerial Imagery, and Ontario Vector Topographic basemaps.</li>
-                <li><strong>Geolocation:</strong> Click the 📍 button (top-left) to center the map on your current location.</li>
+                <li><strong>Basemap Selector:</strong> Click the layer button (top-left) to switch between OpenStreetMap, Aerial Imagery, and MNRF Topographic basemaps.</li>
+                <li><strong>Geolocation:</strong> Click the blue button (top-left) to center the map on your current GPS location.</li>
                 <li><strong>URL Parameters:</strong> You can specify a starting location by adding <code>?loc=latitude,longitude</code> to the URL. For example: <code>?loc=44.081022,-78.381036</code></li>
             </ul>
             <p><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" style="float:right;" height="25"></p>
@@ -326,9 +326,9 @@ const basemaps = {
     },
     ontario: {
         layer: L.esri.Vector.vectorTileLayer('https://tiles.arcgis.com/tiles/TJH5KDher0W13Kgo/arcgis/rest/services/Ontario_Vector_Topographic_Data_Cache_Service/VectorTileServer', {
-            attribution: '&copy; Esri | Ontario Vector Topographic Data'
+            attribution: '&copy; MNRF Topographic Basemap'
         }),
-        name: 'Ontario Vector Topo'
+        name: 'MNRF Vector Topo'
     }
 };
 
