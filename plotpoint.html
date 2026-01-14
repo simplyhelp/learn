@@ -20,13 +20,15 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 10px;
             z-index: 1000;
             display: flex;
-            justify-content: left;
-            align-items: center; /* Center vertically */
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
             gap: 10px;
+            box-sizing: border-box;
         }
         
         #simplyhelp {
@@ -92,22 +94,119 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6h12v12H6z' fill='currentColor'/%3E%3C/svg%3E");
         }
 
-        #basemapSelector {
+        /* Basemap control button */
+        .basemap-control {
+            background: white;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
             cursor: pointer;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        }
+
+        .basemap-control a {
+            display: block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .basemap-control a:hover {
+            background-color: #f4f4f4;
+        }
+
+        /* Basemap selector dropdown */
+        .basemap-selector-panel {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 40px;
+            background: white;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            padding: 8px;
+            z-index: 1000;
+        }
+
+        .basemap-selector-panel.active {
+            display: block;
+        }
+
+        .basemap-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 1px solid #eee;
+        }
+
+        .basemap-option:last-child {
+            border-bottom: none;
+        }
+
+        .basemap-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .basemap-option.selected {
+            background-color: #e6f2ff;
+            font-weight: bold;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            #toolbar {
+                font-size: 14px;
+                padding: 8px;
+                gap: 8px;
+            }
+
+            #toolbar button, #toolbar label, #toolbar input, #toolbar div {
+                padding: 4px 8px;
+                font-size: 14px;
+            }
+
+            #interval {
+                width: 60px;
+            }
+
+            #simplyhelp img {
+                height: 20px;
+            }
+
+            #helper {
+                flex-basis: 100%;
+                text-align: center;
+                order: 10;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #toolbar {
+                font-size: 12px;
+                padding: 6px;
+                gap: 6px;
+            }
+
+            #toolbar button, #toolbar label, #toolbar input, #toolbar div {
+                padding: 3px 6px;
+                font-size: 12px;
+            }
+
+            #interval {
+                width: 50px;
+            }
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <div id="toolbar">
-        <span id="simplyhelp"><a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2026</span> |
-        <label for="basemapSelector">Basemap:</label>
-        <select id="basemapSelector">
-            <option value="osm">OpenStreetMap</option>
-            <option value="aerial">Aerial Imagery</option>
-            <option value="ontario">Ontario Vector Topo</option>
-        </select>
-        |
+        <span id="simplyhelp"><a href="https://simplyhelp.ca" target="_blank"><img src="https://simplyhelp.ca/images/simplyhelplogo.svg" height="25"></a> &copy; 2025</span> |
         <label for="interval">Enter Plot Interval (m):</label>
         <input type="number" id="interval" value="100">
         | <button id="startWorkflow" title="Start Workflow"></button>
@@ -175,26 +274,95 @@ const map = L.map('map').setView([latitude, longitude], 13);
 
 // Define basemap layers
 const basemaps = {
-    osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }),
-    aerial: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    }),
-    ontario: L.esri.Vector.vectorTileLayer('https://tiles.arcgis.com/tiles/TJH5KDher0W13Kgo/arcgis/rest/services/Ontario_Vector_Topographic_Data_Cache_Service/VectorTileServer', {
-        attribution: '&copy; Esri | Ontario Vector Topographic Data'
-    })
+    osm: {
+        layer: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }),
+        name: 'OpenStreetMap'
+    },
+    aerial: {
+        layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        }),
+        name: 'Aerial Imagery'
+    },
+    ontario: {
+        layer: L.esri.Vector.vectorTileLayer('https://tiles.arcgis.com/tiles/TJH5KDher0W13Kgo/arcgis/rest/services/Ontario_Vector_Topographic_Data_Cache_Service/VectorTileServer', {
+            attribution: '&copy; Esri | Ontario Vector Topographic Data'
+        }),
+        name: 'Ontario Vector Topo'
+    }
 };
 
 // Add default basemap
-let currentBasemap = basemaps.osm.addTo(map);
+let currentBasemapKey = 'osm';
+let currentBasemap = basemaps.osm.layer.addTo(map);
 
-// Basemap selector
-const basemapSelector = document.getElementById('basemapSelector');
-basemapSelector.addEventListener('change', function() {
-    map.removeLayer(currentBasemap);
-    currentBasemap = basemaps[this.value].addTo(map);
+// Create custom basemap control
+L.Control.BasemapSelector = L.Control.extend({
+    onAdd: function(map) {
+        const container = L.DomUtil.create('div', 'basemap-control leaflet-bar');
+        const link = L.DomUtil.create('a', '', container);
+        link.href = '#';
+        link.title = 'Change Basemap';
+        link.innerHTML = '🗺️';
+        
+        const panel = L.DomUtil.create('div', 'basemap-selector-panel', container);
+        
+        // Create basemap options
+        Object.keys(basemaps).forEach(key => {
+            const option = L.DomUtil.create('div', 'basemap-option', panel);
+            option.innerHTML = basemaps[key].name;
+            option.dataset.basemap = key;
+            
+            if (key === currentBasemapKey) {
+                option.classList.add('selected');
+            }
+            
+            L.DomEvent.on(option, 'click', function(e) {
+                L.DomEvent.stopPropagation(e);
+                L.DomEvent.preventDefault(e);
+                
+                // Remove old basemap
+                map.removeLayer(currentBasemap);
+                
+                // Add new basemap
+                currentBasemapKey = key;
+                currentBasemap = basemaps[key].layer.addTo(map);
+                
+                // Update selected state
+                panel.querySelectorAll('.basemap-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                
+                // Close panel
+                panel.classList.remove('active');
+            });
+        });
+        
+        // Toggle panel
+        L.DomEvent.on(link, 'click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            panel.classList.toggle('active');
+        });
+        
+        // Close panel when clicking elsewhere
+        L.DomEvent.on(map, 'click', function() {
+            panel.classList.remove('active');
+        });
+        
+        // Prevent map interactions when clicking on control
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.disableScrollPropagation(container);
+        
+        return container;
+    }
 });
+
+// Add basemap control to map
+map.addControl(new L.Control.BasemapSelector({ position: 'topleft' }));
 
 let workflowActive = false;
 let points = [];
