@@ -128,7 +128,37 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-const map = L.map('map').setView([44.023605, -78.5698913], 13);
+// Function to get URL parameters
+function getURLParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// Function to parse location parameter
+function parseLocation(locString, defaultLat, defaultLng) {
+    if (!locString) {
+        return [defaultLat, defaultLng];
+    }
+    
+    const coords = locString.split(',').map(coord => parseFloat(coord.trim()));
+    
+    if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+        return coords;
+    }
+    
+    return [defaultLat, defaultLng];
+}
+
+// Default location
+const defaultLat = 44.081022;
+const defaultLng = -78.381036;
+
+// Get location from URL parameter
+const locParam = getURLParameter('loc');
+const [latitude, longitude] = parseLocation(locParam, defaultLat, defaultLng);
+
+// Initialize map with the location
+const map = L.map('map').setView([latitude, longitude], 13);
 const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
